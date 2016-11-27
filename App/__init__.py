@@ -4,13 +4,13 @@
 from flask import Flask
 from flask.ext.pymongo import MongoClient
 from flask.ext.httpauth import HTTPBasicAuth
-from flask.ext.sqlalchemy import SQLAlchemy
+# from flask.ext.sqlalchemy import SQLAlchemy
 from flask.ext.security import SQLAlchemyUserDatastore, Security
 from App import config
 
 app = Flask(__name__)
 app.config.from_object(config)
-db = SQLAlchemy(app)
+# db = SQLAlchemy(app)
 client = MongoClient()
 auth = HTTPBasicAuth()
 
