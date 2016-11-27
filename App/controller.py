@@ -64,12 +64,64 @@ class Register(Resource):
         user = User(username=username)
         user.hash_passwordhash(passwordhash)
         user.token = user.generate_auth_token(app.config['SECURITY_TOKEN_MAX_AGE'])
-        adduser={'username': user.username, 'userpassword': user.hash_thepasswordhash, 'token': user.token}
-        # try:
+        adduser = {'username': user.username, 'userpassword': user.hash_thepasswordhash, 'token': user.token}
         user.id = coll.insert(adduser)
-        # except
-
         # return (jsonify({'username': user.username}), 201,
         #         {'Location': url_for('get_userinfo', username=user.username, _external=True)})
         return ({'username': user.username, 'userpasswordhash': user.hash_thepasswordhash, 'token': user.token,
                  'userid': str(user.id)})
+
+
+class AddAddresser(Resource):
+    def post(self):
+        pass
+
+
+class Reward(Resource):
+    def get(self):
+        pass
+
+
+class UpdateUserInfo(Resource):
+    @auth.login_required
+    def post(self):
+        pass
+
+
+class Forget(Resource):
+    def get(self):
+        pass
+
+
+class GetUserInfo(Resource):
+    @auth.login_required
+    def post(self):
+        pass
+
+
+class GetItemList(Resource):
+    def get(self):
+        pass
+
+
+class GetItem(Resource):
+    def get(self):
+        pass
+
+
+class AddItem(Resource):
+    @auth.login_required
+    def post(self):
+        pass
+
+
+class AddCart(Resource):
+    @auth.login_required
+    def post(self):
+        pass
+
+
+class PlacedOrder(Resource):
+    @auth.login_required
+    def post(self):
+        pass
