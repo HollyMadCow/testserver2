@@ -1,8 +1,9 @@
 #!/usr/bin/python
-#coding: utf-8
+# coding: utf-8
 
 from flask import request, abort, url_for
 from flask.ext.restful import Resource, reqparse
+from passlib.apps import custom_app_context as pwd_context
 from App import client
 from flask.ext.security import auth_token_required, roles_required, login_user
 from .models import User
@@ -11,117 +12,111 @@ from App import app
 
 
 class Protected(Resource):
-    pass
-    # @auth.login_required
-    # # @auth_token_required
-    # def get(self):
-    #     return {"msg": "这是需要Token的GET方法"}, 200
-	#
-    # @auth.login_required
-    # # @auth_token_required
-    # # @roles_required('admin')  # 不满足则跳转至SECURITY_UNAUTHORIZED_VIEW
-    # def post(self):
-    #     return {"msg": "这是需要Token和admin权限的POST方法"}, 201
+	pass
+
+'''
+登录验证，读取用户POST过来的BasicAuth中的用户名和hash过的密码
+与从数据库中读取的用户密码通过pwd_context.verify校验，如果正确则生成token并返回
+'''
 
 
-class Login(Resource):  # 自定义登录函数
-    # def post(self):
-    #     args = reqparse.RequestParser() \
-    #         .add_argument('username', type=str, location='json', required=True, help="用户名不能为空") \
-    #         .add_argument("password", type=str, location='json', required=True, help="密码不能为空") \
-    #         .parse_args()
-    #     user = User.authenticate(args['username'], args['password'])
-    #     if user:
-    #         login_user(user=user)
-    #         return {"message": "登录成功", "token": user.get_auth_token()}, 200
-    #     else:
-    #         return {"message": "用户名或密码错误"}, 401
-    pass
+class Login(Resource):
+	def post(self):
+		db = client.maindb
+		coll = db['userinfo']
+		loginuser = request.authorization.get('username')
+		loginhashpassword = request.authorization.get('password')
+		if loginuser is None or loginhashpassword is None:
+			return {'错误：': '用户名或密码有误！'}
+		getuser = coll.find_one({'username': loginuser})
+		if getuser is None:
+			return {'错误：': '用户不存在！'}
+		if pwd_context.verify(loginhashpassword, getuser.get('userpassword')) is not True:
+			return {'错误：': '密码错误'}
+		user = User(username=loginuser)
+		user.usertoken = user.generate_auth_token(app.config['SECURITY_TOKEN_MAX_AGE'])
+		return {'username:': loginuser, 'token:': user.usertoken}
+
 
 
 class Test(Resource):  # 自定义登录函数
-    @auth.login_required
-    def get(self):
-        return {'message:': 'hello'}
+	@auth.login_required
+	def get(self):
+		return {'message:': 'hello'}
 
 
 class Register(Resource):
-    def post(self):
-        # username = request.json.get('username')
-        # password = request.json.get('password')
-        db = client.maindb
-        coll = db['userinfo']
-        username = request.form.get('username')
-        passwordhash = request.form.get('passwordhash')
-        if username is None or passwordhash is None:
-            # abort(400)  # missing arguments
-            return {'错误：': '用户名或密码有误！'}
-        if coll.find_one({'username': username}) is not None:
-            return {'错误：': '用户已存在！'}
-        # if User.query.filter_by(username=username).first() is not None:
-        #     abort(400)  # existing user
-
-        user = User(username=username)
-        user.hash_passwordhash(passwordhash)
-        user.token = user.generate_auth_token(app.config['SECURITY_TOKEN_MAX_AGE'])
-        adduser = {'username': user.username, 'userpassword': user.hash_thepasswordhash, 'token': user.token}
-        user.id = coll.insert(adduser)
-        # return (jsonify({'username': user.username}), 201,
-        #         {'Location': url_for('get_userinfo', username=user.username, _external=True)})
-        return ({'username': user.username, 'userpasswordhash': user.hash_thepasswordhash, 'token': user.token,
-                 'userid': str(user.id)})
+	def post(self):
+		# username = request.json.get('username')
+		# password = request.json.get('password')
+		db = client.maindb
+		coll = db['userinfo']
+		username = request.form.get('username')
+		passwordhash = request.form.get('passwordhash')
+		if username is None or passwordhash is None:
+			# abort(400)  # missing arguments
+			return {'错误：': '用户名或密码有误！'}
+		if coll.find_one({'username': username}) is not None:
+			return {'错误：': '用户已存在！'}
+		user = User(username=username)
+		user.hash_passwordhash(passwordhash)
+		user.token = user.generate_auth_token(app.config['SECURITY_TOKEN_MAX_AGE'])
+		adduser = {'username': user.username, 'userpassword': user.hash_thepasswordhash, 'token': user.token}
+		user.id = coll.insert(adduser)
+		return ({'username': user.username, 'userpasswordhash': user.hash_thepasswordhash, 'token': user.token,
+				 'userid': str(user.id)})
 
 
 class AddAddresser(Resource):
-    def post(self):
-        pass
+	def post(self):
+		pass
 
 
 class Reward(Resource):
-    def get(self):
-        pass
+	def get(self):
+		pass
 
 
 class UpdateUserInfo(Resource):
-    @auth.login_required
-    def post(self):
-        pass
+	@auth.login_required
+	def post(self):
+		pass
 
 
 class Forget(Resource):
-    def get(self):
-        pass
+	def get(self):
+		pass
 
 
 class GetUserInfo(Resource):
-    @auth.login_required
-    def post(self):
-        pass
+	@auth.login_required
+	def post(self):
+		pass
 
 
 class GetItemList(Resource):
-    def get(self):
-        pass
+	def get(self):
+		pass
 
 
 class GetItem(Resource):
-    def get(self):
-        pass
+	def get(self):
+		pass
 
 
 class AddItem(Resource):
-    @auth.login_required
-    def post(self):
-        pass
+	@auth.login_required
+	def post(self):
+		pass
 
 
 class AddCart(Resource):
-    @auth.login_required
-    def post(self):
-        pass
+	@auth.login_required
+	def post(self):
+		pass
 
 
 class PlacedOrder(Resource):
-    @auth.login_required
-    def post(self):
-        pass
+	@auth.login_required
+	def post(self):
+		pass
