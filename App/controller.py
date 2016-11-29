@@ -11,6 +11,12 @@ from App import auth
 from App import app
 
 
+# def verify_user(token, username):
+# 	verifyusername = User.verify_auth_token(token)
+# 	if cmp(username, verifyusername.get('username')):
+# 		pass
+
+
 class Protected(Resource):
 	pass
 
@@ -38,7 +44,6 @@ class Login(Resource):
 		return {'username:': loginuser, 'token:': user.usertoken}
 
 
-
 class Test(Resource):  # 自定义登录函数
 	@auth.login_required
 	def get(self):
@@ -63,8 +68,13 @@ class Register(Resource):
 		user.token = user.generate_auth_token(app.config['SECURITY_TOKEN_MAX_AGE'])
 		adduser = {'username': user.username, 'userpassword': user.hash_thepasswordhash, 'token': user.token}
 		user.id = coll.insert(adduser)
-		return ({'username': user.username, 'userpasswordhash': user.hash_thepasswordhash, 'token': user.token,
-				 'userid': str(user.id)})
+		# useruri = 'http://192.168.2.8/v1/%s' % user.username
+		sendmessage = {'username': user.username, 'userpasswordhash': user.hash_thepasswordhash, 'token': user.token,
+				'useruri': user.useruri}
+
+		# return ({'username': user.username, 'userpasswordhash': user.hash_thepasswordhash, 'token': user.token,
+		# 		 'userid': str(user.id)})
+		return {'state': 'ok', 'data': sendmessage}
 
 
 class AddAddresser(Resource):
@@ -89,7 +99,6 @@ class Forget(Resource):
 
 
 class GetUserInfo(Resource):
-	@auth.login_required
 	def post(self):
 		pass
 
@@ -105,18 +114,15 @@ class GetItem(Resource):
 
 
 class AddItem(Resource):
-	@auth.login_required
 	def post(self):
 		pass
 
 
 class AddCart(Resource):
-	@auth.login_required
 	def post(self):
 		pass
 
 
 class PlacedOrder(Resource):
-	@auth.login_required
 	def post(self):
 		pass

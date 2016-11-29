@@ -18,3 +18,4 @@ api.add_resource(GetItem, '/v1/item/<item>')
 api.add_resource(AddItem, '/v1/additem')
 api.add_resource(AddCart, '/v1/addcart')
 api.add_resource(PlacedOrder, '/v1/placedorder')
+

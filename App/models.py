@@ -13,11 +13,12 @@ class User:
     hash_thepasswordhash = ''
     id = ''
     usertoken = ''
+    useruri = ''
 
     def __init__(self, username):
     # def __init__(self, username):
         self.username = username
-        # self.db = client.maindb
+        self.useruri = 'http://192.168.2.8/v1/%s' % username
 
     # __tablename__ = 'users'
     # id = db.Column(db.Integer, primary_key=True)
