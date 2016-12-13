@@ -9,12 +9,20 @@ from flask.ext.security import auth_token_required, roles_required, login_user
 from .models import User
 from App import auth
 from App import app
-
+import datetime
 
 # def verify_user(token, username):
 # 	verifyusername = User.verify_auth_token(token)
 # 	if cmp(username, verifyusername.get('username')):
 # 		pass
+
+
+def verify_account(token, username):
+	user = User.verify_auth_token(token)
+	if user.get['username'] == username :
+		return True
+	else:
+		return False
 
 
 class Protected(Resource):
@@ -58,6 +66,8 @@ class Register(Resource):
 		coll = db['userinfo']
 		username = request.form.get('username')
 		passwordhash = request.form.get('passwordhash')
+		email = request.form.get('email')
+
 		if username is None or passwordhash is None:
 			# abort(400)  # missing arguments
 			return {'错误：': '用户名或密码有误！'}
@@ -66,11 +76,16 @@ class Register(Resource):
 		user = User(username=username)
 		user.hash_passwordhash(passwordhash)
 		user.token = user.generate_auth_token(app.config['SECURITY_TOKEN_MAX_AGE'])
-		adduser = {'username': user.username, 'userpassword': user.hash_thepasswordhash, 'token': user.token}
+		adduser = {
+			'username': user.username, 'userpassword': user.hash_thepasswordhash, 'token': user.token, 'email': email,
+			'regdate': datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+		}
 		user.id = coll.insert(adduser)
 		# useruri = 'http://192.168.2.8/v1/%s' % user.username
-		sendmessage = {'username': user.username, 'userpasswordhash': user.hash_thepasswordhash, 'token': user.token,
-				'useruri': user.useruri}
+		sendmessage = {
+			'username': user.username, 'userpasswordhash': user.hash_thepasswordhash, 'token': user.token,
+			'useruri': user.useruri
+		}
 
 		# return ({'username': user.username, 'userpasswordhash': user.hash_thepasswordhash, 'token': user.token,
 		# 		 'userid': str(user.id)})
