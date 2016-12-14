@@ -17,16 +17,10 @@ import datetime
 # 		pass
 
 
-def verify_account(token, username):
-	user = User.verify_auth_token(token)
-	if user.get['username'] == username :
-		return True
-	else:
-		return False
-
-
 class Protected(Resource):
 	pass
+
+
 
 '''
 登录验证，读取用户POST过来的BasicAuth中的用户名和hash过的密码
